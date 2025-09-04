@@ -30,6 +30,17 @@ namespace TinyMartAPI.Controllers {
         [HttpPost]
         public ActionResult<VideoProduct> AddVideo(VideoProduct newVideo)
         {
+            if (newVideo.ProductID == 0) // only set if not already provided
+            {
+                newVideo.SetProdID(Product.CreateNewID());
+            }
+            else
+            {
+                if (_videos.Any(b => b.ProductID == newVideo.ProductID))
+                {
+                    return Conflict($"An Ebook with ID {newVideo.ProductID} already exist.");
+                }
+            }
             _videos.Add(newVideo);
             return CreatedAtAction(nameof(GetVideo), new { id = newVideo.ProductID }, newVideo);
         }
@@ -51,11 +62,11 @@ namespace TinyMartAPI.Controllers {
 
         }
                 [HttpDelete("{id}")]
-        public ActionResult DeleteAudio(int id)
+        public ActionResult DeleteVideo(int id)
         {
-            var audio = _videos.FirstOrDefault(a => a.ProductID == id);
-            if (audio == null) return NotFound();
-            _videos.Remove(audio);
+            var video = _videos.FirstOrDefault(a => a.ProductID == id);
+            if (video == null) return NotFound();
+            _videos.Remove(video);
             return NoContent();
 
         }

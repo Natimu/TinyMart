@@ -28,6 +28,17 @@ namespace TinyMartAPI.Controllers
         [HttpPost]
         public ActionResult<BookProduct> AllBooks(BookProduct newBook)
         {
+            if (newBook.ProductID == 0) // only set if not already provided
+            {
+                newBook.SetProdID(Product.CreateNewID());
+            }
+            else
+            {
+                if (_books.Any(b => b.ProductID == newBook.ProductID))
+                {
+                    return Conflict($"A book with ID {newBook.ProductID} already exist.");
+                }
+            }
             _books.Add(newBook);
             return CreatedAtAction(nameof(GetBooks), new { id = newBook.ProductID }, newBook);
 
@@ -47,12 +58,12 @@ namespace TinyMartAPI.Controllers
             return NoContent();
         }
 
-                [HttpDelete("{id}")]
-        public ActionResult DeleteAudio(int id)
+        [HttpDelete("{id}")]
+        public ActionResult DeleteBooks(int id)
         {
-            var audio = _books.FirstOrDefault(a => a.ProductID == id);
-            if (audio == null) return NotFound();
-            _books.Remove(audio);
+            var book = _books.FirstOrDefault(a => a.ProductID == id);
+            if (book == null) return NotFound();
+            _books.Remove(book);
             return NoContent();
 
         }

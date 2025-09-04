@@ -34,3 +34,4 @@
 /Users/natnaelawoke/Documents/Desktop files/projects/c#tiny_mart/TinyMartAPI/bin/Debug/net9.0/Swashbuckle.AspNetCore.Swagger.dll
 /Users/natnaelawoke/Documents/Desktop files/projects/c#tiny_mart/TinyMartAPI/bin/Debug/net9.0/Swashbuckle.AspNetCore.SwaggerGen.dll
 /Users/natnaelawoke/Documents/Desktop files/projects/c#tiny_mart/TinyMartAPI/bin/Debug/net9.0/Swashbuckle.AspNetCore.SwaggerUI.dll
+/Users/natnaelawoke/Documents/Desktop files/projects/c#tiny_mart/TinyMartAPI/obj/Debug/net9.0/TinyMartAPI.sourcelink.json

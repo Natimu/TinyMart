@@ -34,6 +34,13 @@ namespace TinyMartAPI.Controllers
             {
                 newAudio.SetProdID(Product.CreateNewID());
             }
+            else
+            {
+                if (_audios.Any(b => b.ProductID == newAudio.ProductID))
+                {
+                    return Conflict($"An audio with ID {newAudio.ProductID} already exist.");
+                }
+            }
             _audios.Add(newAudio);
             return CreatedAtAction(nameof(GetAudio), new { id = newAudio.ProductID }, newAudio);
         }

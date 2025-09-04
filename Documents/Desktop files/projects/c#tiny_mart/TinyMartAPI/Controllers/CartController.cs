@@ -1,0 +1,78 @@
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.Frozen;
+using System.Collections.Generic;
+using System.Linq;
+using TinyMartAPI.Models;
+
+namespace TinyMartAPI.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+
+    public class CartController : ControllerBase
+    {
+        private static List<Cart> _myCarts = new List<Cart>();
+
+        [HttpGet]
+        public ActionResult<IEnumerable<Cart>> GetAllCarts()
+        {
+            return Ok(_myCarts);
+        }
+
+        [HttpGet("{cartId}/items/{name}")]
+        public ActionResult<Product> GetItem(int cartId, string name)
+        {
+            var theCart = _myCarts.FirstOrDefault(c => c.CartId == cartId);
+            if (theCart == null) return NotFound("Cart not found.");
+            var item = theCart.Items.FirstOrDefault(i => i.ProductName == name);
+            if (item == null) return NotFound("Item not found.");
+            return Ok(item);
+        }
+
+        [HttpPost]
+        public ActionResult<Cart> CreateCart([FromBody] NameType owner)
+        {
+            var newCart = new Cart(owner);
+            _myCarts.Add(newCart);
+            return CreatedAtAction(nameof(GetAllCarts), new { cartId = newCart.CartId }, newCart);
+        }
+
+        [HttpPost("{cartId}/items")]
+        public ActionResult AddItemToCart(int cartId, [FromBody] Product item)
+        {
+            var cart = _myCarts.FirstOrDefault(c => c.CartId == cartId);
+            if (cart == null) return NotFound("Cart not found.");
+            cart.AddItem(item);
+            return Ok(cart);
+        }
+        [HttpDelete]
+        public ActionResult DeleteAllCarts()
+        {
+            _myCarts.Clear();
+            return NoContent();
+        }
+
+        [HttpDelete("{cartId}")]
+        public ActionResult DeleteCart(int cartId)
+        {
+            var cart = _myCarts.FirstOrDefault(c => c.CartId == cartId);
+            if (cart == null) return NotFound("Cart do not exist");
+            _myCarts.Remove(cart);
+            return NoContent();
+        }
+
+        [HttpDelete("{cartId}/items/{name}")]
+
+        public ActionResult DeleteItemInCart(int cartId, string name) {
+            var cart = _myCarts.FirstOrDefault(c => c.CartId == cartId);
+            if (cart == null) return NotFound("Cart not found");
+
+            var removed = cart.RemoveItem(name);
+            if (!removed) return NotFound("Item not found");
+
+            return NoContent();
+        
+        }
+    }
+    
+}
