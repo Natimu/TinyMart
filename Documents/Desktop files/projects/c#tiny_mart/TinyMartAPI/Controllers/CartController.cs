@@ -63,7 +63,8 @@ namespace TinyMartAPI.Controllers
 
         [HttpDelete("{cartId}/items/{name}")]
 
-        public ActionResult DeleteItemInCart(int cartId, string name) {
+        public ActionResult DeleteItemInCart(int cartId, string name)
+        {
             var cart = _myCarts.FirstOrDefault(c => c.CartId == cartId);
             if (cart == null) return NotFound("Cart not found");
 
@@ -71,7 +72,22 @@ namespace TinyMartAPI.Controllers
             if (!removed) return NotFound("Item not found");
 
             return NoContent();
-        
+
+
+        }
+
+
+
+        // Total price of a cart 
+        [HttpGet("{cartId}/total")]
+
+        public ActionResult<double> GetCartTotal(int cartId)
+        {
+            var cart = _myCarts.FirstOrDefault(c => c.CartId == cartId);
+            if (cart == null) return NotFound("Cart not found.");
+
+            var total = cart.GetTotalPrice();
+            return Ok(total);
         }
     }
     
