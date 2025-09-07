@@ -10,6 +10,11 @@ namespace TinyMartAPI.Models
         public NameType Owner { get; private set; }
         public List<Product> Items = new List<Product>();
 
+        public Cart()
+        {
+            
+        }
+
         public Cart(NameType owner)
         {
             CartId = nextId++;
