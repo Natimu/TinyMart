@@ -12,7 +12,7 @@ namespace TinyMartAPI.Models
 
         public Cart()
         {
-            
+        
         }
 
         public Cart(NameType owner)

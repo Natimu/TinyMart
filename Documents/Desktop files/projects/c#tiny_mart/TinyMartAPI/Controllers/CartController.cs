@@ -3,6 +3,8 @@ using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 using TinyMartAPI.Models;
+using Microsoft.EntityFrameworkCore;
+using TinyMartAPI.Data;
 
 namespace TinyMartAPI.Controllers
 {
@@ -11,18 +13,27 @@ namespace TinyMartAPI.Controllers
 
     public class CartController : ControllerBase
     {
+        private readonly TinyMartDbContext _cartDb;
+        public CartController(TinyMartDbContext cartDb)
+        {
+            _cartDb = cartDb;
+        }
         private static List<Cart> _myCarts = new List<Cart>();
 
         [HttpGet]
-        public ActionResult<IEnumerable<Cart>> GetAllCarts()
+        public async Task<ActionResult<IEnumerable<Cart>>> GetAllCarts()
         {
-            return Ok(_myCarts);
+            var myCarts = await _cartDb.Carts.ToListAsync();
+            return Ok(myCarts);
         }
 
         [HttpGet("{cartId}/items/{name}")]
-        public ActionResult<Product> GetItem(int cartId, string name)
+        public async Task<ActionResult<Product>> GetItem(int cartId, string name)
         {
-            var theCart = _myCarts.FirstOrDefault(c => c.CartId == cartId);
+            var theCart = await _cartDb.Carts
+                         .Include(c => c.Items)
+                         .FirstOrDefaultAsync(c => c.CartId == cartId);
+
             if (theCart == null) return NotFound("Cart not found.");
             var item = theCart.Items.FirstOrDefault(i => i.ProductName == name);
             if (item == null) return NotFound("Item not found.");

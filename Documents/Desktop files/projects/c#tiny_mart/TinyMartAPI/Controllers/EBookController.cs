@@ -3,25 +3,36 @@ using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 using TinyMartAPI.Models;
+using Microsoft.EntityFrameworkCore;
+using TinyMartAPI.Data;
 namespace TinyMartAPI.Controllers
+
 {
     [ApiController]
     [Route("api/[controller]")]
 
     public class EBookController : ControllerBase
     {
+        private readonly TinyMartDbContext _productDb;
+        public EBookController(TinyMartDbContext productDb)
+        {
+            _productDb = productDb;
+        }
+
+        
         private static List<BookProduct> _ebooks = new List<BookProduct>();
 
         [HttpGet]
-        public ActionResult<IEnumerable<BookProduct>> GetAllBooks()
+        public async Task<ActionResult<IEnumerable<BookProduct>>> GetAllBooks()
         {
-            return Ok(_ebooks);
+            var eBooks = await _productDb.EBooks.ToListAsync();
+            return Ok(eBooks);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<BookProduct> GetBooks(int id)
+        public async Task<ActionResult<BookProduct>> GetBooks(int id)
         {
-            var book = _ebooks.FirstOrDefault(b => b.ProductID == id);
+            var book = await _productDb.EBooks.FindAsync(id);
             if (book == null) return NotFound();
             return Ok(book);
         }

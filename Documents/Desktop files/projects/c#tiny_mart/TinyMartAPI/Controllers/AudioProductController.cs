@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
+using TinyMartAPI.Data;
 using TinyMartAPI.Models;
+using Microsoft.EntityFrameworkCore;
+
 
 
 namespace TinyMartAPI.Controllers
@@ -11,44 +14,52 @@ namespace TinyMartAPI.Controllers
 
     public class AudioController : ControllerBase
     {
+        private readonly TinyMartDbContext _productDb;
+        public AudioController(TinyMartDbContext productDb)
+        {
+            _productDb = productDb;
+        }
         private static List<AudioProduct> _audios = new List<AudioProduct>();
 
         [HttpGet]
-        public ActionResult<IEnumerable<AudioProduct>> GetAllAudio()
+        public async Task<ActionResult<IEnumerable<AudioProduct>>> GetAllAudio()
         {
-            return Ok(_audios);
+            var audios = await _productDb.AudioProducts.ToListAsync();
+            return Ok(audios);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<AudioProduct> GetAudio(int id)
+        public async Task<ActionResult<AudioProduct>> GetAudio(int id)
         {
-            var audio = _audios.FirstOrDefault(a => a.ProductID == id);
+            var audio = await _productDb.AudioProducts.FindAsync(id);
             if (audio == null) return NotFound();
             return Ok(audio);
         }
 
         [HttpPost]
-        public ActionResult<AudioProduct> AddAudio(AudioProduct newAudio)
+        public async Task<ActionResult<AudioProduct>> AddAudio(AudioProduct newAudio)
         {
+            var audios = await _productDb.AudioProducts.ToListAsync();
             if (newAudio.ProductID == 0) // only set if not already provided
             {
                 newAudio.SetProdID(Product.CreateNewID());
             }
             else
             {
-                if (_audios.Any(b => b.ProductID == newAudio.ProductID))
+                if (audios.Any(b => b.ProductID == newAudio.ProductID))
                 {
                     return Conflict($"An audio with ID {newAudio.ProductID} already exist.");
                 }
             }
-            _audios.Add(newAudio);
+            _productDb.AudioProducts.Add(newAudio);
+            await _productDb.SaveChangesAsync();
             return CreatedAtAction(nameof(GetAudio), new { id = newAudio.ProductID }, newAudio);
         }
 
         [HttpPut("{id}")]
-        public ActionResult UpdateAudio(int id, AudioProduct updatedAudio)
+        public async Task<ActionResult> UpdateAudio(int id, AudioProduct updatedAudio)
         {
-            var audio = _audios.FirstOrDefault(a => a.ProductID == id);
+            var audio = await _productDb.AudioProducts.FindAsync(id);
             if (audio == null) return NotFound();
 
             audio.Genre = updatedAudio.Genre;
@@ -61,11 +72,12 @@ namespace TinyMartAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        public ActionResult DeleteAudio(int id)
+        public async Task<ActionResult> DeleteAudio(int id)
         {
-            var audio = _audios.FirstOrDefault(a => a.ProductID == id);
+            var audio = await _productDb.AudioProducts.FindAsync(id);
             if (audio == null) return NotFound();
-            _audios.Remove(audio);
+            _productDb.AudioProducts.Remove(audio);
+            await _productDb.SaveChangesAsync();
             return NoContent();
 
         }
