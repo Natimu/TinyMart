@@ -5,30 +5,38 @@ namespace TinyMartAPI.Models
 {
     public class Cart
     {
+        private static int nextId = 1;
+        public int CartId { get; private set;}
         public NameType Owner { get; private set; }
-        private List<Product> items = new List<Product>();
+        public List<Product> Items = new List<Product>();
+
+        public Cart()
+        {
+        
+        }
 
         public Cart(NameType owner)
         {
+            CartId = nextId++;
             Owner = owner;
         }
 
         public bool AddItem(Product p)
         {
             if (p == null) return false;
-            items.Add(p);
+            Items.Add(p);
             return true;
         }
 
         public bool RemoveItem(string prodName)
         {
-            var item = items.FirstOrDefault(p => p.ProductName == prodName);
+            var item = Items.FirstOrDefault(p => p.ProductName == prodName);
             if (item == null) return false;
-            items.Remove(item);
+            Items.Remove(item);
             return true;
         }
 
-        public IEnumerable<Product> GetItems() => items;
-        public double GetTotalPrice() => items.Sum(p => p.Price);
+        public IEnumerable<Product> GetItems() => Items;
+        public double GetTotalPrice() => Items.Sum(p => p.Price);
     }
 }

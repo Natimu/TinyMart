@@ -1,4 +1,11 @@
+using Microsoft.EntityFrameworkCore;
+using TinyMartAPI.Data;
+
 var builder = WebApplication.CreateBuilder(args);
+
+
+builder.Services.AddDbContext<TinyMartDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add services to the container.
 builder.Services.AddControllers();   // <-- enables [ApiController]

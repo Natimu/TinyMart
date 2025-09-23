@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">WOW Pizza</string>
+    <string name="wow_pizza_header">WOW Pizza</string>
+    <string name="hello_welcome_back">Hello, Welcome back!</string>
+</resources>
