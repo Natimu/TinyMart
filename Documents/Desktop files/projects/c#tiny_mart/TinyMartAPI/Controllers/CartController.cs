@@ -5,6 +5,8 @@ using System.Linq;
 using TinyMartAPI.Models;
 using Microsoft.EntityFrameworkCore;
 using TinyMartAPI.Data;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace TinyMartAPI.Controllers
 {
@@ -41,60 +43,70 @@ namespace TinyMartAPI.Controllers
         }
 
         [HttpPost]
-        public ActionResult<Cart> CreateCart([FromBody] NameType owner)
+        public async Task<ActionResult<Cart>> CreateCart([FromBody] NameType owner)
         {
             var newCart = new Cart(owner);
-            _myCarts.Add(newCart);
+            _cartDb.Add(newCart);
+            await _cartDb.SaveChangesAsync();
             return CreatedAtAction(nameof(GetAllCarts), new { cartId = newCart.CartId }, newCart);
         }
 
         [HttpPost("{cartId}/items")]
-        public ActionResult AddItemToCart(int cartId, [FromBody] Product item)
+        public async Task<ActionResult> AddItemToCart(int cartId, [FromBody] Product item)
         {
-            var cart = _myCarts.FirstOrDefault(c => c.CartId == cartId);
+            var cart = await _cartDb.Carts.FindAsync(cartId);
             if (cart == null) return NotFound("Cart not found.");
             cart.AddItem(item);
+            await _cartDb.SaveChangesAsync();
             return Ok(cart);
         }
+
         [HttpDelete]
-        public ActionResult DeleteAllCarts()
+        public async Task<ActionResult> DeleteAllCarts()
         {
-            _myCarts.Clear();
+            var allCarts = await _cartDb.Carts.ToListAsync();
+            if (!allCarts.Any())
+                return NotFound("No carts found.");
+            _cartDb.Carts.RemoveRange(allCarts);
+            await _cartDb.SaveChangesAsync();
+
             return NoContent();
         }
 
         [HttpDelete("{cartId}")]
-        public ActionResult DeleteCart(int cartId)
+        public async Task<ActionResult> DeleteCart(int cartId)
         {
-            var cart = _myCarts.FirstOrDefault(c => c.CartId == cartId);
+            var cart = await _cartDb.Carts.FindAsync(cartId);
             if (cart == null) return NotFound("Cart do not exist");
-            _myCarts.Remove(cart);
+            _cartDb.Carts.Remove(cart);
+            await _cartDb.SaveChangesAsync();
             return NoContent();
         }
 
         [HttpDelete("{cartId}/items/{name}")]
 
-        public ActionResult DeleteItemInCart(int cartId, string name)
+        public async Task<ActionResult> DeleteItemInCart(int cartId, string name)
         {
-            var cart = _myCarts.FirstOrDefault(c => c.CartId == cartId);
+            var cart = await _cartDb.Carts
+                .Include(c => c.Items)
+                .FirstOrDefaultAsync(c => c.CartId == cartId);
             if (cart == null) return NotFound("Cart not found");
 
             var removed = cart.RemoveItem(name);
             if (!removed) return NotFound("Item not found");
-
+            await _cartDb.SaveChangesAsync();
             return NoContent();
 
-
         }
-
-
 
         // Total price of a cart 
         [HttpGet("{cartId}/total")]
 
-        public ActionResult<double> GetCartTotal(int cartId)
+        public async Task<ActionResult<double>> GetCartTotal(int cartId)
         {
-            var cart = _myCarts.FirstOrDefault(c => c.CartId == cartId);
+            var cart = await _cartDb.Carts
+                .Include(c => c.Items)
+                .FirstOrDefaultAsync(c => c.CartId == cartId);
             if (cart == null) return NotFound("Cart not found.");
 
             var total = cart.GetTotalPrice();

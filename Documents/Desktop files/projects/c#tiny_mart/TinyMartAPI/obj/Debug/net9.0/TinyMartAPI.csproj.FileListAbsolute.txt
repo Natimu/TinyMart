@@ -156,3 +156,4 @@
 /Users/natnaelawoke/Documents/Desktop files/projects/c#tiny_mart/TinyMartAPI/bin/Debug/net9.0/runtimes/win-arm64/native/e_sqlite3.dll
 /Users/natnaelawoke/Documents/Desktop files/projects/c#tiny_mart/TinyMartAPI/bin/Debug/net9.0/runtimes/win-x64/native/e_sqlite3.dll
 /Users/natnaelawoke/Documents/Desktop files/projects/c#tiny_mart/TinyMartAPI/bin/Debug/net9.0/runtimes/win-x86/native/e_sqlite3.dll
+/Users/natnaelawoke/Documents/Desktop files/projects/c#tiny_mart/TinyMartAPI/obj/Debug/net9.0/TinyMartAPI.sourcelink.json
